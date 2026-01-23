@@ -4,15 +4,15 @@ Bem-vindo à minha resposta ao desafio de projeto "Previsão de Estoque Intelige
 
 ## 📋 Seleção e Avaliação do Dataset
 
-Selecionei o arquivo "[dataset-1000-com-preco-promocional-e-renovacao-estoque.csv]([lab-aws-sagemaker-canvas-estoque/datasets/dataset-1000-com-preco-promocional-e-renovacao-estoque.csv at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/dataset-1000-com-preco-promocional-e-renovacao-estoque.csv))" para fazer o desafio. Abri o arquivo para olhar os dados brutos, e ter uma ideia geral. Nesse exemplo, não havia uma coluna indicando demanda, mas sim o estoque. Se plotar o estoque em um gráfico, terá o formato de uma serra, iniciando em 100, e diminuindo conforme a demanda até o estoque ser reposto novamente em 100 unidades, e isso se repete a cada vez que o estoque acabou.
+Selecionei o arquivo [dataset-1000-com-preco-promocional-e-renovacao-estoque.csv](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/dataset-1000-com-preco-promocional-e-renovacao-estoque.csv) para fazer o desafio. Abri o arquivo para olhar os dados brutos, e ter uma ideia geral. Nesse exemplo não havia uma coluna indicando demanda, mas sim o estoque. Se plotar o estoque em um gráfico, terá o formato de uma serra, iniciando em 100, e diminuindo conforme a demanda até o estoque ser reposto novamente em 100 unidades, e isso se repete a cada vez que o estoque acabou.
 
-A primeira coisa a ser feita portanto era redefinir os dados. O estoque representa a demanda de forma indireta, e na aula isso foi interpretado de forma equivocada. Acrescentei uma coluna para indicar a demanda do dia, calculada como o (estoqueDoDia - estoqueDoDiaSeguinte). Não corrigi a distorção dos dados que ocorre sempre que o estoque de um produto foi reposto, ou seja, voltou a 100 unidades. O estoque sempre foi reposto ao final dos produtos, mesmo que houvesse apenas 1 unidade remanescente do dia anterior, e entendo isso como uma distorção dos dados, pois a demanda pode ter sido maior do que a quantidade disponível na loja. No último dia, em que não se pode calcular a demanda, deixei os dados omissos, confiando que a inteligência artificial vai interpretar corretamente a ausência deles.
+A primeira coisa a ser feita portanto era redefinir os dados. O estoque representa a demanda de forma indireta, e na aula isso foi interpretado de forma equivocada. Acrescentei uma coluna para indicar a demanda do dia, calculada como o (estoqueDoDia - estoqueDoDiaSeguinte). Não corrigi a distorção dos dados que ocorre sempre que o estoque de um produto foi reposto, ou seja, voltou a 100 unidades. O estoque sempre foi reposto apenas ao final dos produtos, mesmo que houvesse apenas 1 unidade remanescente do dia anterior, e entendo isso como uma distorção dos dados, pois a demanda pode ter sido maior do que a quantidade disponível na loja. No último dia, em que não se pode calcular a demanda, deixei os dados omissos, confiando que a inteligência artificial vai interpretar corretamente a ausência deles.
 
-![gráficos] ([lab-aws-sagemaker-canvas-estoque/datasets/Capturar.JPG at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/Capturar.JPG))
+![gráficos](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/Capturar.JPG))
 
 ## 🎯 Primeiros percalços e passos
 
-- O Excel salva .csv usando ";" (ponto e vírgula) como separador em vez de "," (vírgula). Acredito que seja por estar configurado para português brasileiro, onde a vírgula é interpretada como marcador de fracionamento. Na primeira tentativa de upload (arquivo "[estoque x demanda.csv]([lab-aws-sagemaker-canvas-estoque/datasets/estoque x demanda.csv at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/estoque%20x%20demanda.csv))"), o Canvas não conseguiu reconhecer as colunas por causa disso. Abri o arquivo no Notepad, substituí todos os ";" por "," e renomeei como "[estoque x demanda 2.csv]([lab-aws-sagemaker-canvas-estoque/datasets/estoque x demanda 2.csv at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/estoque%20x%20demanda%202.csv))". Fiz o upload, e a ID_PRODUTO foi interpretada como valor numérico. O modelo não aceitou o tipo de dado. Defini a coluna como sendo texto, e problema resolvido.
+- O Excel salva .csv usando ";" (ponto e vírgula) como separador em vez de "," (vírgula). Acredito que seja por estar configurado para português brasileiro, onde a vírgula é interpretada como marcador de fracionamento. Na primeira tentativa de upload (arquivo [estoque x demanda.csv](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/estoque%20x%20demanda.csv)), o Canvas não conseguiu reconhecer as colunas por causa disso. Abri o arquivo no Notepad, substituí todos os ";" por "," e renomeei como [estoque x demanda 2.csv](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/estoque%20x%20demanda%202.csv). Fiz o upload, e a ID_PRODUTO foi interpretada como valor numérico. O modelo não aceitou o tipo de dado. Defini a coluna como sendo texto, e problema resolvido.
 
 - Apenas por curiosidade, deixei selecionado feriados, embora eu saiba que os dados foram gerados aleatoriamente. Assim, qualquer correlação identificada iria se tratar apenas de acaso ou alucinação.
 
@@ -38,8 +38,8 @@ Sem a coluna ESTOQUE, desapareceu qualquer correlação. Como interpretar isso? 
 
 **Curiosidade**:
 
-*Correlação com feriados: 25,06%
-Correlação com FLAG_PROMOÇÃO: 0%*
+*Correlação com feriados: 25,06%*  
+*Correlação com FLAG_PROMOÇÃO: 0%*
 
 Com dados aleatórios, essas correlações são apenas coincidências. 
 
