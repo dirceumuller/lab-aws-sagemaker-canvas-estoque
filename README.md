@@ -1,47 +1,56 @@
 # 📊 Previsão de Estoque Inteligente na AWS com [SageMaker Canvas](https://aws.amazon.com/pt/sagemaker/canvas/)
 
-Bem-vindo ao desafio de projeto "Previsão de Estoque Inteligente na AWS com SageMaker Canvas. Neste Lab DIO, você aprenderá a usar o SageMaker Canvas para criar previsões de estoque baseadas em Machine Learning (ML). Siga os passos abaixo para completar o desafio!
+Bem-vindo à minha resposta ao desafio de projeto "Previsão de Estoque Inteligente na AWS com SageMaker Canvas".
 
-## 📋 Pré-requisitos
+## 📋 Seleção e Avaliação do Dataset
 
-Antes de começar, certifique-se de ter uma conta na AWS. Se precisar de ajuda para criar sua conta, confira nosso repositório [AWS Cloud Quickstart](https://github.com/digitalinnovationone/aws-cloud-quickstart).
+Selecionei o arquivo "[dataset-1000-com-preco-promocional-e-renovacao-estoque.csv]([lab-aws-sagemaker-canvas-estoque/datasets/dataset-1000-com-preco-promocional-e-renovacao-estoque.csv at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/dataset-1000-com-preco-promocional-e-renovacao-estoque.csv))" para fazer o desafio. Abri o arquivo para olhar os dados brutos, e ter uma ideia geral. Nesse exemplo, não havia uma coluna indicando demanda, mas sim o estoque. Se plotar o estoque em um gráfico, terá o formato de uma serra, iniciando em 100, e diminuindo conforme a demanda até o estoque ser reposto novamente em 100 unidades, e isso se repete a cada vez que o estoque acabou.
 
+A primeira coisa a ser feita portanto era redefinir os dados. O estoque representa a demanda de forma indireta, e na aula isso foi interpretado de forma equivocada. Acrescentei uma coluna para indicar a demanda do dia, calculada como o (estoqueDoDia - estoqueDoDiaSeguinte). Não corrigi a distorção dos dados que ocorre sempre que o estoque de um produto foi reposto, ou seja, voltou a 100 unidades. O estoque sempre foi reposto ao final dos produtos, mesmo que houvesse apenas 1 unidade remanescente do dia anterior, e entendo isso como uma distorção dos dados, pois a demanda pode ter sido maior do que a quantidade disponível na loja. No último dia, em que não se pode calcular a demanda, deixei os dados omissos, confiando que a inteligência artificial vai interpretar corretamente a ausência deles.
 
-## 🎯 Objetivos Deste Desafio de Projeto (Lab)
+![gráficos] ([lab-aws-sagemaker-canvas-estoque/datasets/Capturar.JPG at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/Capturar.JPG))
 
-![image](https://github.com/digitalinnovationone/lab-aws-sagemaker-canvas-estoque/assets/730492/72f5c21f-5562-491e-aa42-2885a3184650)
+## 🎯 Primeiros percalços e passos
 
-- Dê um fork neste projeto e reescreva este `README.md`. Sinta-se à vontade para detalhar todo o processo de criação do seu Modelo de ML para uma "Previsão de Estoque Inteligente".
-- Para isso, siga o [passo a passo] descrito a seguir e evolua as suas habilidades em ML no-code com o Amazon SageMaker Canvas.
-- Ao concluir, envie a URL do seu repositório com a solução na plataforma da DIO.
+- O Excel salva .csv usando ";" (ponto e vírgula) como separador em vez de "," (vírgula). Acredito que seja por estar configurado para português brasileiro, onde a vírgula é interpretada como marcador de fracionamento. Na primeira tentativa de upload (arquivo "[estoque x demanda.csv]([lab-aws-sagemaker-canvas-estoque/datasets/estoque x demanda.csv at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/estoque%20x%20demanda.csv))"), o Canvas não conseguiu reconhecer as colunas por causa disso. Abri o arquivo no Notepad, substituí todos os ";" por "," e renomeei como "[estoque x demanda 2.csv]([lab-aws-sagemaker-canvas-estoque/datasets/estoque x demanda 2.csv at main · dirceumuller/lab-aws-sagemaker-canvas-estoque · GitHub](https://github.com/dirceumuller/lab-aws-sagemaker-canvas-estoque/blob/main/datasets/estoque%20x%20demanda%202.csv))". Fiz o upload, e a ID_PRODUTO foi interpretada como valor numérico. O modelo não aceitou o tipo de dado. Defini a coluna como sendo texto, e problema resolvido.
 
+- Apenas por curiosidade, deixei selecionado feriados, embora eu saiba que os dados foram gerados aleatoriamente. Assim, qualquer correlação identificada iria se tratar apenas de acaso ou alucinação.
 
-## 🚀 Passo a Passo
+- Previsão de tempo de construção: 2 horas. Bom, fazer o quê, né? Deixei o Canvas rodando, e fui fazer outras coisas.
 
-### 1. Selecionar Dataset
+## 🚀 Resultados encontrados
 
--   Navegue até a pasta `datasets` deste repositório. Esta pasta contém os datasets que você poderá escolher para treinar e testar seu modelo de ML. Sinta-se à vontade para gerar/enriquecer seus próprios datasets, quanto mais você se engajar, mais relevante esse projeto será em seu portfólio.
--   Escolha o dataset que você usará para treinar seu modelo de previsão de estoque.
--   Faça o upload do dataset no SageMaker Canvas.
+### 1. Mantendo ESTOQUE e DEMANDA
 
-### 2. Construir/Treinar
+| Avg. wQL | MAPE  | WAPE  | RMSE  | MASE  |
+| -------- | ----- | ----- | ----- | ----- |
+| 0.424    | 0.022 | 0.662 | 1.292 | 0.730 |
 
--   No SageMaker Canvas, importe o dataset que você selecionou.
--   Configure as variáveis de entrada e saída de acordo com os dados.
--   Inicie o treinamento do modelo. Isso pode levar algum tempo, dependendo do tamanho do dataset.
+Deu uma correlação bem pobre, e o Canvas alertou que PREÇO e FLAG_PROMOCAO poderiam estar diminuindo a qualidade do resultado.
+
+### 2. Removendo ESTOQUE
+
+| Avg. wQL | MAPE  | WAPE  | RMSE   | MASE  |
+| -------- | ----- | ----- | ------ | ----- |
+| 1.000    | 1.000 | 1.000 | 11.044 | 8.293 |
+
+Sem a coluna ESTOQUE, desapareceu qualquer correlação. Como interpretar isso? Bom, ponto a favor do prompt que criou os valores aleatórios para a tabela inicial, pois se os valores são realmente aleatórios, não há correlação para ser encontrada. Revendo o gráfico da distribuição dos dados acima, em ESTOQUE não há realmente nenhuma linha de tendência.
+
+**Curiosidade**:
+
+*Correlação com feriados: 25,06%
+Correlação com FLAG_PROMOÇÃO: 0%*
+
+Com dados aleatórios, essas correlações são apenas coincidências. 
 
 ### 3. Analisar
 
--   Após o treinamento, examine as métricas de performance do modelo.
--   Verifique as principais características que influenciam as previsões.
--   Faça ajustes no modelo se necessário e re-treine até obter um desempenho satisfatório.
+Em primeiro lugar, não achar correlação não é um "resultado errado". Nesse caso, representa a realidade, os dados **são** aleatórios. Mas, como resolver o problema então? Na aula, até porque ao vivo o professor está se dividindo em falar, gravar, ler dúvidas, e ao mesmo tempo demonstrar na tela, houve uma interpretação equivocada. Avaliando os dados de forma dedicada, com a atenção não dividida, se percebe que não há um padrão consistente.
 
 ### 4. Prever
 
--   Use o modelo treinado para fazer previsões de estoque.
--   Exporte os resultados e analise as previsões geradas.
--   Documente suas conclusões e qualquer insight obtido a partir das previsões.
+Se não há um padrão consistente, pode-se utilizar outras estratégias. Por exemplo, se o tempo de entrega do fornecedor é de três dias, pode-se planejar o gatilho da solicitação de compra do produto para repor o estoque quando o estoque atingir um valor entre três e quatro vezes a maior demanda histórica, de forma a evitar que clientes cheguem na loja e o estoque ainda não tenha sido reposto. Para produtos em que o tempo de entrega é imediato, é possível lidar com estoques menores, em um sistema "just-in-time".
 
-## 🤔 Dúvidas?
+## 🤔 E agora?
 
-Esperamos que esta experiência tenha sido enriquecedora e que você tenha aprendido mais sobre Machine Learning aplicado a problemas reais. Se tiver alguma dúvida, não hesite em abrir uma issue neste repositório ou entrar em contato com a equipe da DIO.
+Achei o desafio interessante. Como na minha área primária de atuação a estatística, os padrões e os outliners são a regra do jogo, foi possível perceber que a ferramenta é poderosa, mas a mão que a empunha também precisa ter a habilidade e o discernimento de como utilizá-la. Alguns cientistas de dados já declararam que Machine Learning e Inteligência Artificial não vão substituir humanos, mas sim fazer com que aqueles dispostos a aprender como usar se tornem mais eficientes e produtivos.
